@@ -53,7 +53,7 @@ const Index = () => {
       <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-muted/30 to-white">
         <div className="container mx-auto text-center max-w-4xl animate-fade-in">
           <Badge className="mb-6 bg-accent/10 text-accent border-accent/20">Премиальное строительство</Badge>
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 text-primary leading-tight">
+          <h1 className="md:text-7xl font-bold mb-6 text-primary leading-tight text-7xl">
             Элитное строительство<br />и ремонт под ключ
           </h1>
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
