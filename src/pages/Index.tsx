@@ -4,6 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +17,35 @@ const Index = () => {
     email: '',
     message: ''
   });
+  
+  const [calcData, setCalcData] = useState({
+    serviceType: 'construction',
+    area: '',
+    quality: 'premium',
+    design: false
+  });
+  
   const { toast } = useToast();
+  
+  const calculatePrice = () => {
+    const areaNum = parseFloat(calcData.area) || 0;
+    let pricePerSqm = 0;
+    
+    if (calcData.serviceType === 'construction') {
+      pricePerSqm = calcData.quality === 'premium' ? 85000 : calcData.quality === 'business' ? 65000 : 45000;
+    } else if (calcData.serviceType === 'renovation') {
+      pricePerSqm = calcData.quality === 'premium' ? 65000 : calcData.quality === 'business' ? 45000 : 30000;
+    } else {
+      pricePerSqm = calcData.quality === 'premium' ? 35000 : calcData.quality === 'business' ? 25000 : 15000;
+    }
+    
+    let total = areaNum * pricePerSqm;
+    if (calcData.design) {
+      total += areaNum * 5000;
+    }
+    
+    return total;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +69,7 @@ const Index = () => {
           <div className="hidden md:flex gap-8">
             <button onClick={() => scrollToSection('about')} className="text-sm hover:text-accent transition-colors">О компании</button>
             <button onClick={() => scrollToSection('services')} className="text-sm hover:text-accent transition-colors">Услуги</button>
+            <button onClick={() => scrollToSection('calculator')} className="text-sm hover:text-accent transition-colors">Калькулятор</button>
             <button onClick={() => scrollToSection('portfolio')} className="text-sm hover:text-accent transition-colors">Портфолио</button>
             <button onClick={() => scrollToSection('process')} className="text-sm hover:text-accent transition-colors">Этапы работы</button>
             <button onClick={() => scrollToSection('team')} className="text-sm hover:text-accent transition-colors">Команда</button>
@@ -157,6 +189,155 @@ const Index = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="calculator" className="py-20 px-4 bg-gradient-to-br from-accent/5 via-white to-accent/10">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-16 animate-fade-in">
+            <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">Калькулятор стоимости</Badge>
+            <h2 className="text-5xl font-bold text-primary mb-4">Рассчитайте стоимость проекта</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Узнайте предварительную стоимость работ за 1 минуту
+            </p>
+          </div>
+
+          <Card className="shadow-2xl animate-scale-in">
+            <CardContent className="p-8 md:p-12">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <Label className="text-base font-semibold mb-3 block">Тип услуги</Label>
+                    <RadioGroup value={calcData.serviceType} onValueChange={(value) => setCalcData({...calcData, serviceType: value})}>
+                      <div className="flex items-center space-x-2 p-4 rounded-lg border-2 hover:border-accent/50 transition-colors cursor-pointer">
+                        <RadioGroupItem value="construction" id="construction" />
+                        <Label htmlFor="construction" className="cursor-pointer flex-grow">
+                          <div className="font-semibold">Строительство дома</div>
+                          <div className="text-sm text-muted-foreground">От 45 000 ₽/м²</div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2 p-4 rounded-lg border-2 hover:border-accent/50 transition-colors cursor-pointer">
+                        <RadioGroupItem value="renovation" id="renovation" />
+                        <Label htmlFor="renovation" className="cursor-pointer flex-grow">
+                          <div className="font-semibold">Ремонт квартиры</div>
+                          <div className="text-sm text-muted-foreground">От 30 000 ₽/м²</div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2 p-4 rounded-lg border-2 hover:border-accent/50 transition-colors cursor-pointer">
+                        <RadioGroupItem value="finishing" id="finishing" />
+                        <Label htmlFor="finishing" className="cursor-pointer flex-grow">
+                          <div className="font-semibold">Отделочные работы</div>
+                          <div className="text-sm text-muted-foreground">От 15 000 ₽/м²</div>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div>
+                    <Label className="text-base font-semibold mb-3 block">Площадь объекта (м²)</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="Введите площадь"
+                      value={calcData.area}
+                      onChange={(e) => setCalcData({...calcData, area: e.target.value})}
+                      className="text-lg h-14"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-base font-semibold mb-3 block">Класс отделки</Label>
+                    <Select value={calcData.quality} onValueChange={(value) => setCalcData({...calcData, quality: value})}>
+                      <SelectTrigger className="h-14 text-base">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="standard">Стандарт</SelectItem>
+                        <SelectItem value="business">Бизнес</SelectItem>
+                        <SelectItem value="premium">Премиум</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-4 rounded-lg border-2">
+                    <input 
+                      type="checkbox" 
+                      id="design"
+                      checked={calcData.design}
+                      onChange={(e) => setCalcData({...calcData, design: e.target.checked})}
+                      className="w-5 h-5 accent-accent cursor-pointer"
+                    />
+                    <Label htmlFor="design" className="cursor-pointer flex-grow">
+                      <div className="font-semibold">Дизайн-проект</div>
+                      <div className="text-sm text-muted-foreground">+5 000 ₽/м²</div>
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl p-8 flex flex-col justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-2">Предварительная стоимость</div>
+                    <div className="text-5xl font-bold text-primary mb-8">
+                      {calculatePrice().toLocaleString('ru-RU')} ₽
+                    </div>
+                    
+                    <div className="space-y-3 mb-8">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Площадь:</span>
+                        <span className="font-semibold">{calcData.area || 0} м²</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Класс отделки:</span>
+                        <span className="font-semibold capitalize">{calcData.quality === 'premium' ? 'Премиум' : calcData.quality === 'business' ? 'Бизнес' : 'Стандарт'}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Дизайн-проект:</span>
+                        <span className="font-semibold">{calcData.design ? 'Да' : 'Нет'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Button onClick={() => scrollToSection('contact')} className="w-full bg-accent hover:bg-accent/90 text-primary h-12 text-base" size="lg">
+                      Получить точный расчёт
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                      Это предварительный расчёт. Точную стоимость определит наш специалист после осмотра объекта
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-accent/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Icon name="Shield" className="text-accent" size={32} />
+                </div>
+                <h3 className="font-bold mb-2">Фиксированная цена</h3>
+                <p className="text-sm text-muted-foreground">Стоимость не изменится после подписания договора</p>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-accent/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Icon name="Calendar" className="text-accent" size={32} />
+                </div>
+                <h3 className="font-bold mb-2">Точные сроки</h3>
+                <p className="text-sm text-muted-foreground">Работы выполняются строго по графику</p>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-accent/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <Icon name="Award" className="text-accent" size={32} />
+                </div>
+                <h3 className="font-bold mb-2">Гарантия 10 лет</h3>
+                <p className="text-sm text-muted-foreground">Официальная гарантия на все виды работ</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
